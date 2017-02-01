@@ -291,12 +291,31 @@ export class SelectComponent implements OnInit, ControlValueAccessor {
     if (!selectedItems || selectedItems.length === 0) {
       this._active = [];
     } else {
-      let areItemsStrings = typeof selectedItems[0] === 'string';
+ let areItemsStrings = typeof selectedItems[0] === 'string';
+
+      if (typeof selectedItems[0] === 'number') {
+          this._active = selectedItems.map((item: number) => this.itemObjects.find(x => x.id.toString() === item.toString()));
+          return;
+      }
+
+      if (typeof selectedItems === 'number') {
+          let items: any = selectedItems;
+          const item = this.itemObjects.find(x => x.id.toString() === items.toString());
+          this._active = item ? [item] : [];
+          return;
+      }
+
+      if (typeof selectedItems === 'string') {
+          let items: any = selectedItems;        
+          const item = this.itemObjects.find(x => x.id.toString() === items.toString());
+          this._active = item ? [item] : [];
+          return;
+      }
 
       this._active = selectedItems.map((item:any) => {
         let data = areItemsStrings
           ? item
-          : {id: item[this.idField], text: item[this.textField]};
+          : { id: item[this.idField], text: item[this.textField] };
 
         return new SelectItem(data);
       });
@@ -517,7 +536,7 @@ export class SelectComponent implements OnInit, ControlValueAccessor {
   }
 
   protected  selectActive(value:SelectItem):void {
-    this.activeOption = value;
+    this.activeOption = value.id;
   }
 
   protected  isActive(value:SelectItem):boolean {
@@ -559,7 +578,7 @@ export class SelectComponent implements OnInit, ControlValueAccessor {
     this.selectMatch(this.activeOption);
   }
 
-  private selectMatch(value:SelectItem, e:Event = void 0):void {
+  private selectMatch(value:string, e:Event = void 0):void {
     if (e) {
       e.stopPropagation();
       e.preventDefault();
